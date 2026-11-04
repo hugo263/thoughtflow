@@ -4,6 +4,8 @@
 
 [English](README.md) · [简体中文](README.zh-CN.md)
 
+[Download the skill](https://github.com/hugo263/thoughtflow/releases/latest) · [View source](https://github.com/hugo263/thoughtflow)
+
 Ideas get buried in long chats. Thoughtflow gives your conversation a visual structure: questions, options, decisions, follow-ups and research topics. Read the original responses, check where a summary came from, and keep the parts you need as Markdown.
 
 The interface is in English. Your messages stay in their original language, and AI summaries follow the main language of the conversation.

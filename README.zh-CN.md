@@ -2,6 +2,8 @@
 
 [English](README.md) · [简体中文](README.zh-CN.md)
 
+[下载安装包](https://github.com/hugo263/thoughtflow/releases/latest) · [查看源码](https://github.com/hugo263/thoughtflow)
+
 把 AI 对话变成可以浏览、展开和保存的横向图谱。
 
 新版默认使用英文界面；中文对话保持原文，AI 整理跟随原对话的主要语言。
