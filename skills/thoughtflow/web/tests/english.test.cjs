@@ -1,0 +1,26 @@
+const assert=require('node:assert/strict');
+const Graph=require('../graph.js');
+const Doc=require('../document.js');
+const Digest=require('../digest.js');
+const answer='Two ways to keep useful ideas.\n\n### A. Markdown notes\nEasy to search and share.\n\n### B. Visual map\nExplore branches and source messages.\n\nI recommend B for exploring a long conversation.';
+const split=Graph.extract(answer);
+assert.equal(split.options.length,2);
+assert.deepEqual(split.recommended,['B']);
+assert.ok(!split.options[1].content.includes('I recommend'));
+const first={id:'one',question:'How should I organize AI conversations?',answer,state:'completed',tools:[]};
+const next=q=>Graph.project([first,{id:'two',question:q,answer:'We can explore that choice.',state:'completed',tools:[]}]).nodes.find(n=>n.id==='two');
+assert.deepEqual(next('Not A. Choose B.').parentIds,['one-option-B']);
+assert.equal(next('Compare A and B.').relation.kind,'comparison');
+assert.equal(Doc.requestMode('Write a research report on local AI tools.'),'content');
+assert.equal(Doc.requestMode("Do not write a report. Just discuss the choices."),'flow');
+assert.equal(Doc.requestMode('写一份研究报告'),'content');
+const markdown='# Notes\n\n## Overview\nKeep source links.\n\n## Workflow\nExplore then export.\n\n## Open questions and next steps\n- Which library?';
+const job={id:'summary',title:'Notes',overview:'Keep source links.',markdown,turnCount:1,sourceTurnIds:['one'],sections:[{heading:'Workflow',sourceTurnIds:['one']}],openQuestions:['Which library?']};
+const map=Digest.toGraph(job,[first]);
+assert.equal(map.nodes.find(n=>n.id===map.latestId).kind,'document');
+assert.ok(!map.nodes.some(n=>n.question==='Overview'));
+assert.ok(map.nodes.every(n=>n.sourceTurnIds.includes('one')));
+assert.ok(Digest.fullMarkdown({title:'Notes'},[first]).includes(answer));
+console.log('PASS: English options, recommendations, negatives, comparisons, document intent and source-preserving summaries; Chinese intent retained.');
+
+const optionJob={...job,sections:[{heading:'Original options',body:answer,sourceTurnIds:['one']}]};const optionMap=Digest.toGraph(optionJob,[first]);assert.equal(optionMap.nodes.length,3);assert.equal(optionMap.nodes[1].answer,answer);assert.equal(optionMap.nodes[1].kind,'section');

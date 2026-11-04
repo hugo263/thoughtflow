@@ -1,0 +1,26 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "thoughtflow",
+  "version": "1.1.0",
+  "description": "Explore AI conversations as a local map of ideas, choices and source-linked summaries.",
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "Thoughtflow",
+        "shortDescription": "Turn AI conversations into an explorable map",
+        "longDescription": "Explore questions, options and research topics. Reorganize with source references and export useful content as Markdown.",
+        "developerName": "XiaoK AI Labs",
+        "category": "Productivity",
+        "capabilities": [
+          "Read",
+          "Write"
+        ],
+        "defaultPrompt": [
+          "Open a Thoughtflow map of this conversation",
+          "Reorganize this conversation and update Thoughtflow"
+        ],
+        "brandColor": "#b45309"
+      }
+    }
+  }
+}

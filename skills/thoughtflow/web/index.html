@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <title>Thoughtflow</title>
+  <link rel="stylesheet" href="/app.css">
+  <script defer src="/document.js"></script>
+  <script defer src="/graph.js"></script>
+  <script defer src="/digest.js"></script>
+  <script defer src="/app.js"></script>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar" aria-label="Conversation list">
+      <header class="brand"><span class="brand-mark" aria-hidden="true">⌁</span><span>Thoughtflow</span><span class="brand-sub">AI CONVERSATIONS</span></header>
+      <div class="side-heading"><span>Conversations</span><button type="button" class="icon-button" id="refresh" aria-label="Refresh conversations and connections" title="Refresh conversations and connections">↻</button></div>
+      <label class="search-label"><span class="sr-only">Search conversations</span><input type="search" id="search" placeholder="Search conversations…" autocomplete="off"></label>
+      <div class="conversations" id="conversations" aria-live="polite"><p class="list-message">Loading conversations…</p></div>
+      <div class="sidebar-foot"><span class="status-dot" id="service-dot"></span><span id="service-status">Connecting to local service</span></div>
+    </aside>
+    <main class="workspace">
+      <header class="workspace-header">
+        <div class="workspace-title"><div class="eyebrow">THOUGHTFLOW</div><h1 id="conversation-title">Select a conversation</h1><span class="subtitle" id="conversation-meta">Explore ideas, choices and follow-ups</span></div>
+        <div class="header-actions"><span class="live-status"><span id="live-dot" class="status-dot"></span><span id="live-status">Select a conversation to begin</span></span><label class="organize-choice"><span class="sr-only">Organization method</span><select id="organize-mode" aria-label="Organization method"><option value="outline">Quick outline · local</option><option value="ai">AI summary · Codex CLI</option></select></label><button type="button" class="secondary-button" id="organize" disabled>Build outline</button><button type="button" class="secondary-button" id="export-markdown" disabled>Export Markdown</button><button type="button" class="primary-button" id="save-all" disabled>Save all</button><button type="button" class="secondary-button" id="connections">Libraries</button><button type="button" class="secondary-button" id="open-external">Open in browser</button><button type="button" class="secondary-button" id="reload" disabled>Refresh</button></div>
+      </header>
+      <div class="external-error" id="external-error" role="alert" hidden></div>
+      <div class="live-alert" id="live-alert" role="status" hidden></div>
+      <div class="organize-bar" id="organize-bar" role="status" hidden><span id="organize-message"></span><button type="button" class="text-button" id="read-organized" hidden>Read full summary</button><button type="button" class="text-button" id="download-markdown" hidden>Download summary</button></div>
+      <div class="canvas-toolbar">
+        <div class="toolbar-left"><div class="view-switch" aria-label="Content view"><button type="button" id="view-flow" aria-pressed="true">Original flow</button><button type="button" id="view-organized" aria-pressed="false" disabled>Organized content</button></div><span class="divider"></span><label class="jump-label">Jump <select id="jump" aria-label="Jump to a map card" disabled><option>No cards yet</option></select></label><button type="button" class="secondary-button" id="show-branches" hidden>Show branches</button><button type="button" class="secondary-button" id="insights" hidden>Insights</button><button type="button" class="new-turns" id="new-turns" aria-live="polite" hidden>New messages · Jump</button></div>
+        <span class="canvas-instruction">Drag to pan · Scroll to move · Ctrl / ⌘ + scroll to zoom</span>
+      </div>
+      <div class="viewport" id="viewport" aria-label="Conversation map canvas">
+        <div class="scene" id="scene"><svg class="edges" id="edges" aria-hidden="true"></svg><div id="cards"></div></div>
+        <div class="empty-state" id="empty"><span class="empty-mark" aria-hidden="true">⌁</span><h2>See your conversation take shape</h2><p>Select a conversation from the sidebar.</p></div>
+        <div class="minimap" aria-hidden="true"><span>Map overview</span><svg id="minimap" viewBox="0 0 160 85"></svg></div>
+        <div class="canvas-controls" aria-label="Map controls">
+          <button type="button" id="pan-left" aria-label="Pan left" title="Pan left">←</button><button type="button" id="pan-right" aria-label="Pan right" title="Pan right">→</button>
+          <span class="control-separator"></span><button type="button" id="zoom-out" aria-label="Zoom out" title="Zoom out">−</button><button type="button" id="zoom-label" class="zoom-label" aria-label="Reset zoom" title="Reset zoom">100%</button><button type="button" id="zoom-in" aria-label="Zoom in" title="Zoom in">+</button><button type="button" id="fit" aria-label="Fit all cards" title="Fit all cards">⛶</button>
+        </div>
+      </div>
+      <footer class="workspace-foot"><span id="footer-count">Conversation displayed locally</span><span>Ideas → Options → Branches / Merges · Dashed lines are inferred</span></footer>
+    </main>
+  </div>
+  <dialog id="save-dialog" aria-labelledby="save-heading">
+    <form id="save-form">
+      <header class="dialog-head"><div><h2 id="save-heading">Save to GetNote</h2><p>Review the content, tags and destination before saving.</p></div><button type="button" class="icon-button" id="save-close" aria-label="Close">×</button></header>
+      <div class="dialog-body">
+      <section class="all-save-options" id="all-save-options" hidden><p>Save everything as one Markdown note. Only connected libraries are shown.</p><div class="save-provider-choices" id="save-provider-choices" aria-label="Choose a library"></div><label class="field-label">Export content<select id="export-scope"><option value="full">Full conversation · Markdown</option><option value="organized">Summary · Condensed Markdown</option></select></label><label class="export-tools" id="export-tools-field"><input type="checkbox" id="export-tools"> Include tool activity</label><button type="button" class="text-button" id="save-download">Download Markdown</button></section>
+      <label class="field-label">Title<input id="save-title" maxlength="200" required></label>
+      <label class="field-label">Tags<input id="save-tags" placeholder="Separate tags with commas or spaces" autocomplete="off"><span class="field-hint">Up to 5 tags, 10 characters each. Edit or remove suggestions.</span></label>
+      <div class="tag-preview" id="tag-preview" aria-label="Tag preview"></div>
+      <label class="field-label" id="save-target-field" hidden>Destination<select id="save-target" aria-label="Destination"></select></label>
+      <div class="target-search" id="target-search-field" hidden><input id="target-search" type="search" placeholder="Search Notion pages or data sources" aria-label="Search Notion destinations"><button type="button" class="secondary-button" id="target-search-button">Search</button></div>
+      <p class="save-hint" id="save-hint"></p>
+      <label class="field-label">Note content<textarea id="save-content" rows="12" required></textarea></label>
+      <p id="save-error" class="save-error" role="alert" hidden></p>
+      </div>
+      <footer class="dialog-foot"><button type="button" class="secondary-button" id="save-cancel">Cancel</button><button type="submit" class="primary-button" id="save-confirm">Save to GetNote</button></footer>
+    </form>
+  </dialog>
+  <dialog id="organized-reader" aria-labelledby="organized-reader-title"><header class="dialog-head"><div><h2 id="organized-reader-title">Organized content</h2><p>Outlines use local excerpts. AI summaries rewrite existing messages. Check either against the original sources.</p></div><button type="button" class="icon-button" id="organized-reader-close" aria-label="Close full summary">×</button></header><article class="organized-prose" id="organized-prose"></article><footer class="dialog-foot"><button type="button" class="secondary-button" id="organized-reader-save">Save all</button></footer></dialog>
+  <dialog id="connections-dialog" aria-labelledby="connections-heading">
+    <header class="dialog-head"><div><h2 id="connections-heading">Library connections</h2><p>Uses compatible local credentials and registered Obsidian vaults. Checks every 30 seconds while this page is visible.</p></div><button type="button" class="icon-button" id="connections-close" aria-label="Close library connections">×</button></header>
+    <div class="connection-list" id="connection-list"></div>
+    <footer class="dialog-foot"><button type="button" class="secondary-button" id="connections-refresh">Check again</button></footer>
+  </dialog>
+  <dialog id="insights-dialog" aria-labelledby="insights-heading"><header class="dialog-head"><div><h2 id="insights-heading">Conversation insights</h2><p>Conclusions and recommendations from completed responses. Repeated excerpts are merged with their sources.</p></div><button type="button" class="icon-button" id="insights-close" aria-label="Close insights">×</button></header><div class="insight-list" id="insight-list"></div></dialog>
+  <dialog id="link-dialog" aria-labelledby="link-heading">
+    <form id="link-form">
+      <header class="dialog-head"><div><h2 id="link-heading">Edit connection sources</h2><p>Select earlier nodes, or leave empty for an independent start. Changes are saved in this browser.</p></div><button type="button" class="icon-button" id="link-close" aria-label="Close connection settings">×</button></header>
+      <p class="link-context" id="link-context"></p>
+      <label class="field-label">Find sources<input type="search" id="link-search" placeholder="Search questions or options…" autocomplete="off"></label>
+      <div class="link-choices" id="link-choices"></div>
+      <p class="link-context" id="link-count" aria-live="polite"></p>
+      <footer class="dialog-foot"><button type="button" class="secondary-button" id="link-reset">Restore automatic links</button><button type="button" class="secondary-button" id="link-cancel">Cancel</button><button type="submit" class="primary-button">Apply connections</button></footer>
+    </form>
+  </dialog>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
